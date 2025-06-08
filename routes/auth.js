@@ -5,6 +5,8 @@ const { query, body, validationResult } = require('express-validator');
 const bcrypt  =require( 'bcryptjs');
 const jwt = require('jsonwebtoken');
 
+const jwt_secret="vyakhyagoyal";
+
 //create a user using POST: "/api/auth/createuser"
 router.post('/createuser', [body('email', 'enter a valid mail').isEmail(),
 body('name', 'length is less than 3').isLength({ min: 3 }),
@@ -41,7 +43,16 @@ body('password', 'enter valid password').isStrongPassword({ minLength: 5, })],
                 email: req.body.email,
                 password: hash
             })
-            res.json({ name: user.name, email: user.email, id: user._id })
+            const data={
+                user:{
+                    id:user.id //using id bcz it is an index in mongodb compass
+                }
+            }
+
+            var token = jwt.sign(data, jwt_secret);
+
+            // res.json({ name: user.name, email: user.email, id: user._id })
+            res.json({token});
         }
         catch (error) {
             console.error(error.message);
