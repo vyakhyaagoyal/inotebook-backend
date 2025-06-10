@@ -21,7 +21,7 @@ body('password', 'enter valid password').isStrongPassword({ minLength: 5, })],
         // res.send(req.body);
         // const user=new User(req.body);
         // user.save();
-
+//check for errors
         const result = validationResult(req);
         if (!result.isEmpty()) {
             return res.status(400).send({ errors: result.array() });
@@ -111,7 +111,7 @@ router.post('/getuser', fetchuser, async (req, res) => {
         userId = req.user.id;
         const user = await User.findById(userId).select("-password");
         res.send(user);
-        
+
     } catch (error) {
         console.error(error.message);
         res.status(500).send("Error occurred");
