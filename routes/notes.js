@@ -5,7 +5,7 @@ const fetchuser = require('../middleware/fetchuser');
 const { query, body, validationResult } = require('express-validator');
 const User = require('../models/User');
 
-//1st endpoint- Fetch all notes of a particular user using GET: "/api/auth/fetchallnotes"
+//1st endpoint- Fetch all notes of a particular user using GET: "/api/notes/fetchallnotes"
 router.get('/fetchallnotes', fetchuser, async (req, res) => {
     try {
         const fetch = await Notes.find({ user: req.user.id });
@@ -21,7 +21,7 @@ router.get('/fetchallnotes', fetchuser, async (req, res) => {
 
 });
 
-//2nd endpoint- Create a note using POST: "/api/auth/createnote"
+//2nd endpoint- Create a note using POST: "/api/notes/createnote"
 router.post('/createnote',
     [body('title', 'Title must be atleast 2 characters').isLength({ min: 2 }),
     body('description', 'description must be atleast 5 characters').isLength({ min: 5 })]
@@ -56,7 +56,7 @@ router.post('/createnote',
 
     });
 
-//3rd endpoint- Update a note using PUT: "/api/auth/updatenote/:id"
+//3rd endpoint- Update a note using PUT: "/api/notes/updatenote/:id"
 router.put('/updatenote/:id', fetchuser, async (req, res) => {
     try {
         const { title, description, tag } = req.body;
@@ -89,7 +89,7 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
 });
 
 
-//4th endpoint- Delete a note using DELETE: "/api/auth/deletenote/:id"
+//4th endpoint- Delete a note using DELETE: "/api/notes/deletenote/:id"
 router.delete('/deletenote/:id', fetchuser, async (req, res) => {
     try {
 
@@ -101,7 +101,7 @@ router.delete('/deletenote/:id', fetchuser, async (req, res) => {
 
         // console.log(req.user.id);
         // console.log(check.user.toString());
-        
+
         //Checks if the logged-in user owns the note(security)
         if (check.user.toString() !== req.user.id) {
             return res.status(401).send("Unauthorized");
