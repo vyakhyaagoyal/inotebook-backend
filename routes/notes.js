@@ -56,36 +56,66 @@ router.post('/createnote',
 
     });
 
-//3rd endpoint- Update a note using POST: "/api/auth/updatenote/:id"
+//3rd endpoint- Update a note using PUT: "/api/auth/updatenote/:id"
 router.put('/updatenote/:id', fetchuser, async (req, res) => {
     try {
         const { title, description, tag } = req.body;
 
         // Find the note to update, ensuring it belongs to the user
-        let update=await Notes.findOne({_id: req.params.id, user:req.user.id});
-        if(!update){
+        let update = await Notes.findOne({ _id: req.params.id, user: req.user.id });
+        if (!update) {
             return res.status(404).json({ error: "Note not found" });
         }
 
         //check if the user logged in is only the person updating the note(security)
-        if(update.user.toString()!==req.user.id){
+        if (update.user.toString() !== req.user.id) {
             return res.status(401).send("Unauthorized");
         }
 
         // Update fields if provided
-        if(title) update.title=title;
-        if(description) update.description=description;
-        if(tag) update.tag=tag;
+        if (title) update.title = title;
+        if (description) update.description = description;
+        if (tag) update.tag = tag;
 
         // Save and return the updated note
-        const updatedNote=await update.save();
+        const updatedNote = await update.save();
         res.json(updatedNote);
 
     } catch (error) {
         console.error(error.message);
-            res.status(500).send("Error occurred");
+        res.status(500).send("Error occurred");
     }
 
-    });
+});
+
+
+//4th endpoint- Delete a note using DELETE: "/api/auth/deletenote/:id"
+router.delete('/deletenote/:id', fetchuser, async (req, res) => {
+    try {
+
+        //CHECK IF THE NOTE TO BE DELETED EXISTS OR NOT
+        let check = await Notes.findById(req.params.id);
+        if (!check) {
+            return res.status(404).json({ error: "Note not found" });
+        }
+
+        // console.log(req.user.id);
+        // console.log(check.user.toString());
+        
+        //Checks if the logged-in user owns the note(security)
+        if (check.user.toString() !== req.user.id) {
+            return res.status(401).send("Unauthorized");
+        }
+
+        // check = await Notes.findByIdAndDelete(req.params.id);
+        // res.json({ "Success": "Deleted the note" });
+        const deleted = await check.deleteOne(); //alternate method
+        res.json({ deleted });
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send("Error occurred");
+    }
+});
 
 module.exports = router
