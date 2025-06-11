@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import { jwt,verify } from 'jsonwebtoken';
 const jwtSecret = process.env.JWT_SECRET;
 
 const fetchuser = (req, res, next) => {

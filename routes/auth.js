@@ -1,10 +1,10 @@
-const express = require('express');
-const User = require('../models/User');
-const router = express.Router();  //express router object
-const { query, body, validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const fetchuser = require('../middleware/fetchuser');
+import { Router } from 'express';
+import { findOne, create, findById } from '../models/User';
+const router = Router();  //express router object
+import { query, body, validationResult } from 'express-validator';
+import { genSalt, hash as _hash, compare } from 'bcryptjs';
+import { sign } from 'jsonwebtoken';
+import fetchuser from '../middleware/fetchuser';
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -29,16 +29,16 @@ body('password', 'enter valid password').isStrongPassword({ minLength: 5, })],
 
         try {
             //check if this email already exists
-            let user = await User.findOne({ email: req.body.email });
+            let user = await findOne({ email: req.body.email });
             if (user) {
                 return res.status(400).json({ error: "User with this email already exists" })
             }
 
-            const salt = await bcrypt.genSalt(10);
-            const hash = await bcrypt.hash(req.body.password, salt);
+            const salt = await genSalt(10);
+            const hash = await _hash(req.body.password, salt);
 
             //Create a new user
-            user = await User.create({
+            user = await create({
                 name: req.body.name,
                 email: req.body.email,
                 password: hash
@@ -49,7 +49,7 @@ body('password', 'enter valid password').isStrongPassword({ minLength: 5, })],
                 }
             }
 
-            var token = jwt.sign(payload, jwtSecret); //generating a token
+            var token = sign(payload, jwtSecret); //generating a token
 
             // res.json({ name: user.name, email: user.email, id: user._id })
             res.json({ token });
@@ -78,12 +78,12 @@ body('password', 'password connot be blank').exists()],
 
         const { email, password } = req.body;
         try {
-            let user = await User.findOne({ email });
+            let user = await findOne({ email });
             if (!user) {
                 return res.status(400).json({ error: "Login with correct credentials" });
             }
 
-            const passCompare = await bcrypt.compare(password, user.password);
+            const passCompare = await compare(password, user.password);
             if (!passCompare) {
                 res.status(400).json({ error: "Enter valid password" });
             }
@@ -93,7 +93,7 @@ body('password', 'password connot be blank').exists()],
                     id: user.id
                 }
             }
-            var token = jwt.sign(payload, jwtSecret);
+            var token = sign(payload, jwtSecret);
             res.json({ token, id: user.id }); //send back the token to client
 
         }
@@ -108,8 +108,8 @@ body('password', 'password connot be blank').exists()],
 router.post('/getuser', fetchuser, async (req, res) => {
 
     try {
-        userId = req.user.id;
-        const user = await User.findById(userId).select("-password");
+        const userId = req.user.id;
+        const user = await findById(userId).select("-password");
         res.send(user);
 
     } catch (error) {
@@ -119,4 +119,4 @@ router.post('/getuser', fetchuser, async (req, res) => {
 
 })
 
-module.exports = router
+export default router

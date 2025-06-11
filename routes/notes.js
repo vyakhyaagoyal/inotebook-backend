@@ -1,14 +1,14 @@
-const express = require('express');
-const router = express.Router();
-const Notes = require('../models/Notes');
-const fetchuser = require('../middleware/fetchuser');
-const { query, body, validationResult } = require('express-validator');
-const User = require('../models/User');
+import { Router } from 'express';
+const router = Router();
+import { find, create as _create, findOne, findById } from '../models/Notes';
+import fetchuser from '../middleware/fetchuser';
+import { query, body, validationResult } from 'express-validator';
+// import User from '../models/User';
 
 //1st endpoint- Fetch all notes of a particular user using GET: "/api/notes/fetchallnotes"
 router.get('/fetchallnotes', fetchuser, async (req, res) => {
     try {
-        const fetch = await Notes.find({ user: req.user.id });
+        const fetch = await find({ user: req.user.id });
         if (!fetch) {
             return res.status(404).json({ error: "Note not found" });
         }
@@ -40,7 +40,7 @@ router.post('/createnote',
             // const savedNote=await Notes.save();
             // res.json({ savedNote });
 
-            const create = await Notes.create({
+            const create = await _create({ //_create means Notes.create in ES module instead of CommonJS module
                 title: req.body.title,
                 description: req.body.description,
                 tag: req.body.tag,
@@ -62,7 +62,7 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
         const { title, description, tag } = req.body;
 
         // Find the note to update, ensuring it belongs to the user
-        let update = await Notes.findOne({ _id: req.params.id, user: req.user.id });
+        let update = await findOne({ _id: req.params.id, user: req.user.id });
         if (!update) {
             return res.status(404).json({ error: "Note not found" });
         }
@@ -94,7 +94,7 @@ router.delete('/deletenote/:id', fetchuser, async (req, res) => {
     try {
 
         //CHECK IF THE NOTE TO BE DELETED EXISTS OR NOT
-        let check = await Notes.findById(req.params.id);
+        let check = await findById(req.params.id);
         if (!check) {
             return res.status(404).json({ error: "Note not found" });
         }
@@ -118,4 +118,4 @@ router.delete('/deletenote/:id', fetchuser, async (req, res) => {
     }
 });
 
-module.exports = router
+export default router

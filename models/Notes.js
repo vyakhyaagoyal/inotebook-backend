@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const NotesSchema = new mongoose.Schema({
+const NotesSchema = new Schema({
   user: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref:'User'
   },
   title: {
@@ -23,4 +23,4 @@ const NotesSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('Notes', NotesSchema)
+export default model('Notes', NotesSchema)

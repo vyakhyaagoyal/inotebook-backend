@@ -1,6 +1,6 @@
 require('dotenv').config();
-const connectToMongo=require('./db');
-const express = require('express')
+import connectToMongo from './db';
+import express, { json } from 'express';
 
 connectToMongo();
 const app = express()
@@ -10,10 +10,10 @@ app.get('/', (req, res) => { //initial page
   res.send('Hello World Vyakhya!')
 })
 
-app.use(express.json())
+app.use(json())
 
 //available routes
-app.use('/api/auth',require('./routes/auth'))
+app.use('/api/auth',require('./routes/auth').default)
 app.use('/api/notes',require('./routes/notes'))
 
 app.listen(port, () => {
