@@ -1,9 +1,9 @@
-import { connect } from 'mongoose';
+const mongoose=require('mongoose');
 const mongoURI="mongodb://localhost:27017/inotebook";
 
 const connectToMongo=()=>{
-    connect(mongoURI);
+    mongoose.connect(mongoURI);
     console.log("connected");
 }
 
-export default connectToMongo;
+module.exports=connectToMongo;
