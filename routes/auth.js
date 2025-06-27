@@ -24,14 +24,14 @@ body('password', 'enter valid password').isStrongPassword({ minLength: 5, })],
 //check for errors
         const result = validationResult(req);
         if (!result.isEmpty()) {
-            return res.status(400).send({ errors: result.array() });
+            return res.status(400).send({ errors: result.array() }).json({ success: false });
         }
 
         try {
             //check if this email already exists
             let user = await User.findOne({ email: req.body.email });
             if (user) {
-                return res.status(400).json({ error: "User with this email already exists" })
+                return res.status(400).json({ success: false, error: "User with this email already exists" })
             }
 
             const salt = await bcrypt.genSalt(10);
@@ -52,10 +52,10 @@ body('password', 'enter valid password').isStrongPassword({ minLength: 5, })],
             var token = jwt.sign(payload, jwtSecret); //generating a token
 
             // res.json({ name: user.name, email: user.email, id: user._id })
-            res.json({ token });
+            res.json({ success:true,token });
         }
         catch (error) {
-            console.error(error.message);
+            // console.error(error.message);
             res.status(500).send("Error occurred");
         }
 
@@ -85,7 +85,7 @@ body('password', 'password connot be blank').exists()],
 
             const passCompare = await bcrypt.compare(password, user.password);
             if (!passCompare) {
-                res.status(400).json({ error: "Enter valid password" });
+                res.status(400).json({ success: false,error: "Enter valid password" });
             }
 
             const payload = {
@@ -94,7 +94,7 @@ body('password', 'password connot be blank').exists()],
                 }
             }
             var token = jwt.sign(payload, jwtSecret);
-            res.json({ token, id: user.id }); //send back the token to client
+            res.json({ success: true, token, id: user.id }); //send back the token to client
 
         }
         catch (error) {
